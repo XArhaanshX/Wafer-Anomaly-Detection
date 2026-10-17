@@ -1,6 +1,6 @@
-# wafer-guard
+# Wafer Anomaly Detection
 
-Audit and repair of the Fab-7 wafer anomaly detector (GDG wildcard, AI/ML task).
+Audit and repair of the Fab-7 WAFER-GUARD excursion detector (GDG wildcard, AI/ML task).
 
 - `wafer_guard_fixed.ipynb` is the repaired pipeline. Section 8 has the evidence for each bug: shapes, ablations, CV.
 - `AUDIT.md` is the write-up: the bugs, the fixes, the metrics and a go/no-go.
