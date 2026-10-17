@@ -8,13 +8,13 @@
 
 **2. Corrupted loss gradients (cells 10 and 14).** The loader gives `[B, 1, F]` and `forward` returns `[B, F]`, so `reconstructed - batch_x` broadcasts to `[64, 64, F]`. Its gradient is the same as MSE against the batch mean (max difference 2.18e-11), so the decoder learns to output the average wafer. Recon loss stays at 0.744 for all 40 epochs, and reconstructions differ across wafers by 0.004, versus 0.384 once fixed (8.1). *Fix:* I removed the channel axis and added asserts on the reconstruction and logit shapes.
 
-**3. Invariant blindness on PS-L wafers (cell 8).** 146 wafers have `sensor_0 == 0.0`, and all of them have `sensor_1` in {100, 200, 300}. The original imputed and scaled these as numbers. That raised sensor_0's std from 74 to 881, squashing genuine variation 11.8x (8.5x for sensor_1). It also pushed the six truly missing sensor_0 values 3.8 std below the real mean, and turned the sentinel into a perfect PS-L flag at z = -3.11 (8.3). *Fix:* a fixed per-row rule blanks sensor_0 and sensor_1 on PS-L rows, and the code becomes three one-hot columns that skip imputation and scaling. The reconstruction loss is masked, so the decoder never trains on an imputed or blanked cell.
+**3. Invariant blindness on PS-L wafers (cell 8).** 146 wafers have `sensor_0 == 0.0`, and all of them have `sensor_1` in {100, 200, 300}. The original imputed and scaled these as numbers. That raised sensor_0's std from 74 to 881, squashing genuine variation 11.8x (8.5x for sensor_1). It also pushed the six truly missing sensor_0 values 3.8 std below the real mean, and turned the sentinel into a perfect PS-L flag at z = -3.11 (8.3). *Fix:* a fixed per-row rule blanks sensor_0 and sensor_1 on PS-L rows, and the code becomes three one-hot columns that skip imputation and scaling. The blanked cells go into the encoder as 0, the one-hot columns tell the model why, and the reconstruction loss skips them. That way no made-up value is ever used as a measurement or a target.
 
 ## Other defects
 
 - The 0.5 threshold was never tuned. At natural prevalence it flags 1 of 314 test wafers.
 - The gate used F1 on a balanced set, and the export always saved a preprocessor fit on test rows. The gate now runs on the time-ordered test set, with no export when it fails.
-- 122 sensors are constant in train (6 change later) and 24 are at least 50% missing. Without clipping, test |z| reaches 37,231. I drop those sensors and clip to ±5, both chosen by walk-forward CV inside train + val (AP 0.045 to 0.058).
+- 122 sensors are constant in train and 24 are at least 50% missing. Without clipping, |z| on the validation window reaches 1,836. I drop those sensors and clip to ±5, both chosen by walk-forward CV inside train + val (AP 0.045 to 0.058).
 
 ## True metrics at natural prevalence
 

@@ -18,7 +18,7 @@ pip install -r requirements.txt
 jupyter notebook wafer_guard_fixed.ipynb
 ```
 
-Run all cells. The full notebook takes about 3 minutes on a laptop CPU. The committed outputs are the ones quoted in `AUDIT.md`, and the seeds are fixed, so a rerun should give the same numbers.
+Run all cells. The full notebook takes about 3 minutes on a laptop CPU. The committed outputs are the ones quoted in `AUDIT.md`. The seeds are fixed, so a CPU rerun with the pinned versions should give the same numbers. On a GPU they will differ slightly.
 
 ## Notes
 
