@@ -24,7 +24,8 @@ Run all cells. The full notebook takes about 3 minutes on a laptop CPU. The comm
 
 - Data is sorted by `timestamp` and split 60/20/20 in time. Anything that gets fit (column filter, imputer, scaler, decision threshold) only sees rows from before the window it is applied to.
 - PS-L legacy wafers are detected from the data itself (`sensor_0 == 0.0`). I didn't use the evaluator-only mask file, and it isn't in this repo.
-- The model is the original supervised autoencoder, unchanged. Imbalance is handled with `pos_weight`. SMOTE only appears in the section 8 ablations.
+- The model is the original supervised autoencoder, unchanged: an encoder (447 -> 256 -> 128 -> 32), a decoder that mirrors it, and a linear classifier on the 32-d code. Loss is masked reconstruction MSE + BCE with `pos_weight`. SMOTE only appears in the section 8 ablations.
+- Settings (split, epochs, learning rate, clip, missing-value cutoff) are in the `HP` dict in the second code cell.
 - There are no separate tests. The shape asserts in the training loop and the evidence cells in section 8 are the checks.
 - Libraries: PyTorch, scikit-learn, imbalanced-learn, pandas, numpy, joblib.
 - Limitations are listed in `AUDIT.md`. The short version: with 17 defects in the test window, every metric has wide intervals.
